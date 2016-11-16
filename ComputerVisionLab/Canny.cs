@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Emgu.CV;
@@ -201,8 +202,8 @@ namespace ComputerVisionLab
         {
             Mat dest = new Mat();
             Mat dest2 = new Mat();
-            CvInvoke.Dilate(src, dest, null, new Point(-1, -1), 1, BorderType.Reflect, new MCvScalar());
-            CvInvoke.Erode(dest, dest2, null, new Point(-1, -1), 1, BorderType.Reflect, new MCvScalar());
+            CvInvoke.Dilate(src, dest, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
+            CvInvoke.Erode(dest, dest2, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
             //CvInvoke.Dilate(dest2, dest, null, new Point(-1, -1), 1, BorderType.Reflect, new MCvScalar());
             return dest2;
         }
@@ -218,35 +219,18 @@ namespace ComputerVisionLab
 
         public Mat FindContours(Mat srcImage)
         {
-            /*
-            using (CvInvoke.ContourArea() MemStorage storage = new MemStorage())
-            {
-                for (Contour<Point> contours = grayImage.FindContours(Emgu.CV.CvEnum.ChainApproxMethod.ChainApproxSimple, Emgu.CV.CvEnum.RetrType.List, storage); contours != null; contours = contours.HNext)
-                {
-                    Contour<Point> currentContour = contours.ApproxPoly(contours.Perimeter * 0.015, storage);
-                    if (currentContour.BoundingRectangle.Width > 20)
-                    {
-                        CvInvoke.DrawContours(outputImage, contours, new MCvScalar(255), new MCvScalar(255), -1, 1, Emgu.CV.CvEnum.LineType.EightConnected, new Point(0, 0));
-                        outputImage.Draw(currentContour.BoundingRectangle, new Bgr(0, 255, 0), 1);
-                    }
-                }
-            }*/
-
             //Mat dest = new Mat(srcImage.Rows, srcImage.Cols, DepthType.Cv8U, 3);
             Mat dest = new Mat();
             sourceImage.CopyTo(dest);
             if (srcImage.NumberOfChannels == 3)
                 return null;
 
-            //int largest_contour_index = 0;
-            //double largest_area = 0;
-            VectorOfPoint largestContour;
-
             using (Mat hierachy = new Mat())
-            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint()) {
-                IOutputArray hirarchy;
-
+            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
+            using (VectorOfVectorOfPoint contours2 = new VectorOfVectorOfPoint())
+            {
                 CvInvoke.FindContours(srcImage, contours, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxNone);
+                Mat labels = new Mat(srcImage.Rows, srcImage.Cols, DepthType.Cv8U, 2);
 
                 for (int contour_index = 0; contour_index < contours.Size; contour_index++)
                 {
@@ -256,8 +240,6 @@ namespace ComputerVisionLab
                     double perimeter = CvInvoke.ArcLength(contours[contour_index], true);
                     if (area < 7)
                     {
-                        //largest_area = a;
-                        //largest_contour_index = contour_index; //Store the index of largest contour
                         ;//CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(0, 190, 40), 1, LineType.EightConnected, hierachy);
                     }
                     else
@@ -266,6 +248,7 @@ namespace ComputerVisionLab
                         {
                             if (area/(perimeter*perimeter) > 0.05 && area/(perimeter*perimeter) < 0.30)
                             {
+                                contours2.Push(contours[contour_index]);
                                 CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
                             }
                         }
@@ -275,11 +258,38 @@ namespace ComputerVisionLab
                             //CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(100, 100, 100), 1, LineType.EightConnected, hierachy);
                         }
                     }
-                    //CvInvoke.DrawContours(dest, contours, largest_contour_index, new MCvScalar(255, 0, 0), 3);
-
                     //CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(0, 0, 255), 1, LineType.EightConnected, hierachy);
                 }
-                //largestContour = new VectorOfPoint(contours[largest_contour_index].ToArray());
+                for (int contour_index = 0; contour_index < contours2.Size; contour_index++)
+                {
+                    CvInvoke.DrawContours(labels, contours2, contour_index, new MCvScalar(contour_index + 1));
+                }
+                Image<Gray, byte> srcImageImage = srcImage.ToImage<Gray, byte>();
+                int[] contAvgs = new int[contours2.Size];
+                int[] counts = new int[contours2.Size];
+                var bmp = labels.ToImage<Gray, byte>();
+                
+                //int[] ddd = new int[srcImage.Cols * srcImage.Rows];
+                //Marshal.Copy(labels.DataPointer, ddd, 0, srcImage.Cols * srcImage.Rows - 1);
+                for(int i = 0; i < srcImage.Cols; i++)
+                    for (int j = 0; j < srcImage.Rows; j++)
+                    {
+                        byte label = (byte)bmp[j, i].Intensity; //ddd[j * srcImage.Cols + i];
+                        if(label == 0)
+                            continue;
+                        else
+                        {
+                            label -= 1;
+                        }
+                        byte value = (byte)srcImageImage[j, i].Intensity;
+                        contAvgs[label] += value;
+                        ++counts[label];
+                    }
+                for (int i = 0; i < contAvgs.Length; i++)
+                {
+                    contAvgs[i] /= counts[i];
+                    CvInvoke.DrawContours(dest, contours2, i, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
+                }
             }
 
             return dest;
