@@ -1,0 +1,14 @@
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\bin\Debug\MetroFramework.dll
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\bin\Debug\MetroFramework.pdb
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\obj\Debug\MetroFramework.csprojResolveAssemblyReference.cache
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\obj\Debug\MetroFramework.Properties.Resources.resources
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\obj\Debug\MetroFramework.csproj.GenerateResource.Cache
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\obj\Debug\MetroFramework.dll
+C:\Users\User\Desktop\winforms-modernui-master\MetroFramework\obj\Debug\MetroFramework.pdb
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\bin\Debug\MetroFramework.dll
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\bin\Debug\MetroFramework.pdb
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\obj\Debug\MetroFramework.csprojResolveAssemblyReference.cache
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\obj\Debug\MetroFramework.Properties.Resources.resources
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\obj\Debug\MetroFramework.csproj.GenerateResource.Cache
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\obj\Debug\MetroFramework.dll
+F:\Программирование\ITLab\ITLAB_PROJECT_2\MetroFramework\obj\Debug\MetroFramework.pdb
