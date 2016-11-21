@@ -217,78 +217,77 @@ namespace ComputerVisionLab
             return dest;
         }
 
-        public Mat FindContours(Mat srcImage)
+        public Mat FindContours(Mat src)
         {
-            //Mat dest = new Mat(srcImage.Rows, srcImage.Cols, DepthType.Cv8U, 3);
+            //Mat dest = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
             Mat dest = new Mat();
             sourceImage.CopyTo(dest);
-            if (srcImage.NumberOfChannels == 3)
+            if (src.NumberOfChannels == 3)
                 return null;
 
             using (Mat hierachy = new Mat())
-            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
-            using (VectorOfVectorOfPoint contours2 = new VectorOfVectorOfPoint())
+            using (VectorOfVectorOfPoint contoursAfterCannyEdgeDetection = new VectorOfVectorOfPoint())
+            using (VectorOfVectorOfPoint contoursAfterCriteriaApplying = new VectorOfVectorOfPoint())
             {
-                CvInvoke.FindContours(srcImage, contours, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxNone);
-                Mat labels = new Mat(srcImage.Rows, srcImage.Cols, DepthType.Cv8U, 2);
+                CvInvoke.FindContours(src, contoursAfterCannyEdgeDetection, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxNone);
 
-                for (int contour_index = 0; contour_index < contours.Size; contour_index++)
+                for (int contourIndex = 0; contourIndex < contoursAfterCannyEdgeDetection.Size; contourIndex++)
                 {
-                    Rectangle rect = CvInvoke.BoundingRectangle(contours[contour_index]);
+                    Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[contourIndex]);
                     MCvScalar color = new MCvScalar(0, 0, 255);
-                    double area = CvInvoke.ContourArea(contours[contour_index], false); //  Find the area of contour
-                    double perimeter = CvInvoke.ArcLength(contours[contour_index], true);
-                    if (area < 7)
+                    double contourArea = CvInvoke.ContourArea(contoursAfterCannyEdgeDetection[contourIndex], false); //  Find the area of contour
+                    double contourPerimeter = CvInvoke.ArcLength(contoursAfterCannyEdgeDetection[contourIndex], true);
+                    
+                    if (contourArea >= 7)
                     {
-                        ;//CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(0, 190, 40), 1, LineType.EightConnected, hierachy);
-                    }
-                    else
-                    {
-                        if (((rect.Width < 25) || (rect.Height < 25)) && ((rect.Width / (float)rect.Height < 1.8f) && (rect.Height / (float)rect.Width < 1.8f)))
+                        if (((boundingRectangle.Width < 25) || (boundingRectangle.Height < 25)) && 
+                            ((boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) && 
+                            (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f)))
                         {
-                            if (area/(perimeter*perimeter) > 0.05 && area/(perimeter*perimeter) < 0.30)
+                            if (contourArea/(contourPerimeter*contourPerimeter) > 0.05 && contourArea/(contourPerimeter*contourPerimeter) < 0.30)
                             {
-                                contours2.Push(contours[contour_index]);
-                                CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
+                                contoursAfterCriteriaApplying.Push(contoursAfterCannyEdgeDetection[contourIndex]);
+                                //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
                             }
                         }
-                        else
-                        {
-                            ;
-                            //CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(100, 100, 100), 1, LineType.EightConnected, hierachy);
-                        }
                     }
-                    //CvInvoke.DrawContours(dest, contours, contour_index, new MCvScalar(0, 0, 255), 1, LineType.EightConnected, hierachy);
                 }
-                for (int contour_index = 0; contour_index < contours2.Size; contour_index++)
+
+                Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 2);
+                /*for(int i = 0; i < src.Cols; i++)
+                    for(int j = 0; j < src.Rows; j++)
+                        labels.SetValue(j, i, (byte)255);*/
+                for (int contourIndex = 0; contourIndex < contoursAfterCriteriaApplying.Size; contourIndex++)
                 {
-                    CvInvoke.DrawContours(labels, contours2, contour_index, new MCvScalar(contour_index + 1));
+                    CvInvoke.DrawContours(labels, contoursAfterCriteriaApplying, contourIndex, new MCvScalar(contourIndex + 1), -1); // draw contour[contourIndex] with (contourIndex + 1) gray color 
                 }
-                Image<Gray, byte> srcImageImage = srcImage.ToImage<Gray, byte>();
-                int[] contAvgs = new int[contours2.Size];
-                int[] counts = new int[contours2.Size];
-                var bmp = labels.ToImage<Gray, byte>();
-                
-                //int[] ddd = new int[srcImage.Cols * srcImage.Rows];
-                //Marshal.Copy(labels.DataPointer, ddd, 0, srcImage.Cols * srcImage.Rows - 1);
-                for(int i = 0; i < srcImage.Cols; i++)
-                    for (int j = 0; j < srcImage.Rows; j++)
+                Image<Gray, byte> srcImage = sourceImage.ToImage<Gray, byte>();
+                int[] averageContourIntensity = new int[contoursAfterCriteriaApplying.Size];
+                int[] counts = new int[contoursAfterCriteriaApplying.Size];
+                //var bmp = labels.ToImage<Gray, byte>();
+
+                //int[] ddd = new int[src.Cols * src.Rows];
+                //Marshal.Copy(labels.DataPointer, ddd, 0, src.Cols * src.Rows - 1);
+                for(int i = 0; i < src.Cols; i++)
+                    for (int j = 0; j < src.Rows; j++)
                     {
-                        byte label = (byte)bmp[j, i].Intensity; //ddd[j * srcImage.Cols + i];
+                        byte label = (byte)labels.GetValue(j, i); //ddd[j * src.Cols + i];
                         if(label == 0)
                             continue;
-                        else
-                        {
-                            label -= 1;
-                        }
-                        byte value = (byte)srcImageImage[j, i].Intensity;
-                        contAvgs[label] += value;
+                        label -= 1;
+                        byte value = (byte)srcImage[j, i].Intensity;
+                        averageContourIntensity[label] += value;
                         ++counts[label];
                     }
-                for (int i = 0; i < contAvgs.Length; i++)
+                for (int i = 0; i < 254; i++)
                 {
-                    contAvgs[i] /= counts[i];
-                    CvInvoke.DrawContours(dest, contours2, i, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
+                    averageContourIntensity[i] /= counts[i];
+                    if(averageContourIntensity[i] < 110)
+                        CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(108, 240, 3), 1, LineType.EightConnected/*, hierachy*/);
+                    else
+                    {
+                        ;//CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
+                    }
                 }
             }
 

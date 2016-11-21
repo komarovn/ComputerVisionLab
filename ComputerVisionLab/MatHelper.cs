@@ -11,6 +11,19 @@ namespace ComputerVisionLab
 {
     public static class MatHelper
     {
+        /*public static double GetValue(this Mat mat, int row, int col)
+        {
+            var value = new double[1];
+            Marshal.Copy(mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize, value, 0, 1);
+            return value[0];
+        }
+
+        public static void SetValue(this Mat mat, int row, int col, double value)
+        {
+            var target = new[] { value };
+            Marshal.Copy(target, 0, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize, 1);
+        }*/
+
         public static dynamic GetValue(this Mat mat, int row, int col)
         {
             var value = CreateElement(mat.Depth);
@@ -23,6 +36,7 @@ namespace ComputerVisionLab
             var target = CreateElement(mat.Depth, value);
             Marshal.Copy(target, 0, mat.DataPointer + (row * mat.Cols + col) * mat.ElementSize, 1);
         }
+
         private static dynamic CreateElement(DepthType depthType, dynamic value)
         {
             var element = CreateElement(depthType);
