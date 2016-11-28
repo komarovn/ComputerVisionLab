@@ -253,40 +253,54 @@ namespace ComputerVisionLab
                     }
                 }
 
-                Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 2);
-                /*for(int i = 0; i < src.Cols; i++)
-                    for(int j = 0; j < src.Rows; j++)
-                        labels.SetValue(j, i, (byte)255);*/
-                for (int contourIndex = 0; contourIndex < contoursAfterCriteriaApplying.Size; contourIndex++)
-                {
-                    CvInvoke.DrawContours(labels, contoursAfterCriteriaApplying, contourIndex, new MCvScalar(contourIndex + 1), -1); // draw contour[contourIndex] with (contourIndex + 1) gray color 
-                }
+                int quantityOfLabels = (int)Math.Ceiling((double)contoursAfterCriteriaApplying.Size/254);
+                int sizeOfLastLabels = contoursAfterCriteriaApplying.Size%255;
                 Image<Gray, byte> srcImage = sourceImage.ToImage<Gray, byte>();
-                int[] averageContourIntensity = new int[contoursAfterCriteriaApplying.Size];
-                int[] counts = new int[contoursAfterCriteriaApplying.Size];
-                //var bmp = labels.ToImage<Gray, byte>();
 
-                //int[] ddd = new int[src.Cols * src.Rows];
-                //Marshal.Copy(labels.DataPointer, ddd, 0, src.Cols * src.Rows - 1);
-                for(int i = 0; i < src.Cols; i++)
-                    for (int j = 0; j < src.Rows; j++)
-                    {
-                        byte label = (byte)labels.GetValue(j, i); //ddd[j * src.Cols + i];
-                        if(label == 0)
-                            continue;
-                        label -= 1;
-                        byte value = (byte)srcImage[j, i].Intensity;
-                        averageContourIntensity[label] += value;
-                        ++counts[label];
-                    }
-                for (int i = 0; i < 254; i++)
+                for (int k = 0; k < quantityOfLabels; k++)
                 {
-                    averageContourIntensity[i] /= counts[i];
-                    if(averageContourIntensity[i] < 110)
-                        CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(108, 240, 3), 1, LineType.EightConnected/*, hierachy*/);
-                    else
+                    Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 2);
+                    /*for(int i = 0; i < src.Cols; i++)
+                        for(int j = 0; j < src.Rows; j++)
+                            labels.SetValue(j, i, (byte)255);*/
+                    int hh = (k + 1) * 255;
+                    int vv = 255;
+                    if (k == quantityOfLabels - 1)
                     {
-                        ;//CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
+                        hh = k * 255 + sizeOfLastLabels;
+                        vv = sizeOfLastLabels%255;
+                    }
+                    for (int contourIndex = k * 255; contourIndex < hh; contourIndex++)
+                    {
+                        CvInvoke.DrawContours(labels, contoursAfterCriteriaApplying, contourIndex,
+                                new MCvScalar(contourIndex % 255 + 1), -1);
+                            // draw contour[contourIndex] with (contourIndex + 1) gray color 
+                    }
+                    int[] averageContourIntensity = new int[255];
+                    int[] counts = new int[255];
+
+                    for (int i = 0; i < src.Cols; i++)
+                        for (int j = 0; j < src.Rows; j++)
+                        {
+                            byte label = (byte) labels.GetValue(j, i); //ddd[j * src.Cols + i];
+                            if (label == 0)
+                                continue;
+                            label -= 1;
+                            byte value = (byte) srcImage[j, i].Intensity;
+                            averageContourIntensity[label] += value;
+                            ++counts[label];
+                        }
+                    for (int i = 0; i < vv; i++)
+                    {
+                        averageContourIntensity[i] /= counts[i];
+                        if (averageContourIntensity[i] < 110)
+                            CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(108, 240, 3), 2,
+                                LineType.EightConnected /*, hierachy*/);
+                        //else
+                        //{
+                          //  ;
+                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
+                        //}
                     }
                 }
             }
