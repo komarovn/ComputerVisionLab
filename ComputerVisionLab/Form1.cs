@@ -26,6 +26,16 @@ namespace ComputerVisionLab
         public Form1()
         {
             InitializeComponent();
+            var pos1 = this.PointToScreen(label2.Location);
+            pos1 = imageBox1.PointToClient(pos1);
+            label2.Parent = imageBox1;
+            label2.Location = pos1;
+            label2.BackColor = Color.Transparent;
+            var pos2 = this.PointToScreen(label1.Location);
+            pos2 = imageBox1.PointToClient(pos2);
+            label1.Parent = imageBox1;
+            label1.Location = pos2;
+            label1.BackColor = Color.Transparent;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -191,6 +201,7 @@ namespace ComputerVisionLab
                 destImage = dest.FindContours(outputImage);
                 if (destImage != null)
                 {
+                    label2.Text = dest.getNumberOfAstrocytes().ToString();
                     destImage.CopyTo(outputImage);
                     imageBox1.Image = outputImage;
                     imageBox1.Refresh();

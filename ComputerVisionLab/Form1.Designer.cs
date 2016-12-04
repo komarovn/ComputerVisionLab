@@ -38,6 +38,7 @@
             this.edgeDetectionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dilateAndErodeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grayscaleToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.findContoursToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageBox1 = new Emgu.CV.UI.ImageBox();
             this.metroTrackBar1 = new MetroFramework.Controls.MetroTrackBar();
             this.metroTrackBar2 = new MetroFramework.Controls.MetroTrackBar();
@@ -45,7 +46,8 @@
             this.metroLabel2 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel3 = new MetroFramework.Controls.MetroLabel();
             this.metroLabel4 = new MetroFramework.Controls.MetroLabel();
-            this.findContoursToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).BeginInit();
             this.SuspendLayout();
@@ -129,6 +131,13 @@
             this.grayscaleToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
             this.grayscaleToolStripMenuItem.Text = "Grayscale";
             this.grayscaleToolStripMenuItem.Click += new System.EventHandler(this.grayscaleToolStripMenuItem_Click);
+            // 
+            // findContoursToolStripMenuItem
+            // 
+            this.findContoursToolStripMenuItem.Name = "findContoursToolStripMenuItem";
+            this.findContoursToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
+            this.findContoursToolStripMenuItem.Text = "Find Contours";
+            this.findContoursToolStripMenuItem.Click += new System.EventHandler(this.findContoursToolStripMenuItem_Click);
             // 
             // imageBox1
             // 
@@ -247,12 +256,25 @@
             this.metroLabel4.Theme = MetroFramework.MetroThemeStyle.Light;
             this.metroLabel4.UseStyleColors = false;
             // 
-            // findContoursToolStripMenuItem
+            // label1
             // 
-            this.findContoursToolStripMenuItem.Name = "findContoursToolStripMenuItem";
-            this.findContoursToolStripMenuItem.Size = new System.Drawing.Size(228, 22);
-            this.findContoursToolStripMenuItem.Text = "Find Contours";
-            this.findContoursToolStripMenuItem.Click += new System.EventHandler(this.findContoursToolStripMenuItem_Click);
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label1.Location = new System.Drawing.Point(28, 87);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(76, 17);
+            this.label1.TabIndex = 8;
+            this.label1.Text = "Astrocytes:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label2.Location = new System.Drawing.Point(110, 87);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(15, 17);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "0";
             // 
             // Form1
             // 
@@ -260,6 +282,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(645, 497);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.metroLabel4);
             this.Controls.Add(this.metroLabel3);
             this.Controls.Add(this.metroLabel2);
@@ -299,6 +323,8 @@
         private System.Windows.Forms.ToolStripMenuItem dilateAndErodeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem grayscaleToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem findContoursToolStripMenuItem;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
     }
 }
 

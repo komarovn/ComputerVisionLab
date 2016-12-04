@@ -24,6 +24,7 @@ namespace ComputerVisionLab
         private readonly int width;
         private readonly int minThreshold;
         private readonly int maxThreshold;
+        private int numberOfAstrocytes;
 
         public Canny(Mat image)
         {
@@ -219,6 +220,7 @@ namespace ComputerVisionLab
 
         public Mat FindContours(Mat src)
         {
+            numberOfAstrocytes = 0;
             //Mat dest = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
             Mat dest = new Mat();
             sourceImage.CopyTo(dest);
@@ -259,7 +261,7 @@ namespace ComputerVisionLab
 
                 for (int k = 0; k < quantityOfLabels; k++)
                 {
-                    Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 2);
+                    Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
                     /*for(int i = 0; i < src.Cols; i++)
                         for(int j = 0; j < src.Rows; j++)
                             labels.SetValue(j, i, (byte)255);*/
@@ -279,10 +281,13 @@ namespace ComputerVisionLab
                     int[] averageContourIntensity = new int[255];
                     int[] counts = new int[255];
 
+                    var im = labels.ToImage<Bgra, Byte>();
+
                     for (int i = 0; i < src.Cols; i++)
+                    {
                         for (int j = 0; j < src.Rows; j++)
                         {
-                            byte label = (byte) labels.GetValue(j, i); //ddd[j * src.Cols + i];
+                            byte label = /* (byte) labels.GetValue(j, i);*/ im.Data[j, i, 0];
                             if (label == 0)
                                 continue;
                             label -= 1;
@@ -290,22 +295,33 @@ namespace ComputerVisionLab
                             averageContourIntensity[label] += value;
                             ++counts[label];
                         }
+                    }
                     for (int i = 0; i < vv; i++)
                     {
                         averageContourIntensity[i] /= counts[i];
-                        if (averageContourIntensity[i] < 110)
-                            CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(108, 240, 3), 2,
+                        if ((averageContourIntensity[i] < 110 && counts[i] > 100) ||
+                            (averageContourIntensity[i] < 130 && counts[i] <= 100))
+                        {
+                            CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k*255,
+                                new MCvScalar(108, 240, 3), 2,
                                 LineType.EightConnected /*, hierachy*/);
-                        //else
-                        //{
-                          //  ;
-                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
-                        //}
+                            numberOfAstrocytes++;
+                        }
+                        else
+                        {
+                            ;
+                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
+                        }
                     }
                 }
             }
 
             return dest;
+        }
+
+        public int getNumberOfAstrocytes()
+        {
+            return numberOfAstrocytes;
         }
     }
 }
