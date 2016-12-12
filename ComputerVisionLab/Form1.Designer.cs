@@ -48,6 +48,10 @@
             this.metroLabel4 = new MetroFramework.Controls.MetroLabel();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.radioRed = new MetroFramework.Controls.MetroRadioButton();
+            this.radioGreen = new MetroFramework.Controls.MetroRadioButton();
+            this.radioBlue = new MetroFramework.Controls.MetroRadioButton();
+            this.radioGray = new MetroFramework.Controls.MetroRadioButton();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.imageBox1)).BeginInit();
             this.SuspendLayout();
@@ -60,7 +64,7 @@
             this.effectsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(645, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(643, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -142,7 +146,7 @@
             // imageBox1
             // 
             this.imageBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.imageBox1.Location = new System.Drawing.Point(12, 79);
+            this.imageBox1.Location = new System.Drawing.Point(13, 154);
             this.imageBox1.Name = "imageBox1";
             this.imageBox1.Size = new System.Drawing.Size(618, 400);
             this.imageBox1.TabIndex = 2;
@@ -167,13 +171,14 @@
             this.metroTrackBar1.Theme = MetroFramework.MetroThemeStyle.Light;
             this.metroTrackBar1.Value = 20;
             this.metroTrackBar1.ValueChanged += new System.EventHandler(this.metroTrackBar1_ValueChanged);
+            this.metroTrackBar1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.metroTrackBar1_MouseUp);
             // 
             // metroTrackBar2
             // 
             this.metroTrackBar2.BackColor = System.Drawing.Color.Transparent;
             this.metroTrackBar2.CustomBackground = false;
             this.metroTrackBar2.LargeChange = ((uint)(5u));
-            this.metroTrackBar2.Location = new System.Drawing.Point(330, 50);
+            this.metroTrackBar2.Location = new System.Drawing.Point(12, 107);
             this.metroTrackBar2.Maximum = 255;
             this.metroTrackBar2.Minimum = 0;
             this.metroTrackBar2.MouseWheelBarPartitions = 10;
@@ -187,6 +192,7 @@
             this.metroTrackBar2.Theme = MetroFramework.MetroThemeStyle.Light;
             this.metroTrackBar2.Value = 70;
             this.metroTrackBar2.ValueChanged += new System.EventHandler(this.metroTrackBar2_ValueChanged);
+            this.metroTrackBar2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.metroTrackBar2_MouseUp);
             // 
             // metroLabel1
             // 
@@ -212,7 +218,7 @@
             this.metroLabel2.FontSize = MetroFramework.MetroLabelSize.Medium;
             this.metroLabel2.FontWeight = MetroFramework.MetroLabelWeight.Light;
             this.metroLabel2.LabelMode = MetroFramework.Controls.MetroLabelMode.Default;
-            this.metroLabel2.Location = new System.Drawing.Point(330, 28);
+            this.metroLabel2.Location = new System.Drawing.Point(12, 85);
             this.metroLabel2.Name = "metroLabel2";
             this.metroLabel2.Size = new System.Drawing.Size(107, 19);
             this.metroLabel2.Style = MetroFramework.MetroColorStyle.Blue;
@@ -246,7 +252,7 @@
             this.metroLabel4.FontSize = MetroFramework.MetroLabelSize.Medium;
             this.metroLabel4.FontWeight = MetroFramework.MetroLabelWeight.Light;
             this.metroLabel4.LabelMode = MetroFramework.Controls.MetroLabelMode.Default;
-            this.metroLabel4.Location = new System.Drawing.Point(600, 50);
+            this.metroLabel4.Location = new System.Drawing.Point(282, 107);
             this.metroLabel4.Name = "metroLabel4";
             this.metroLabel4.Size = new System.Drawing.Size(30, 19);
             this.metroLabel4.Style = MetroFramework.MetroColorStyle.Blue;
@@ -260,7 +266,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(28, 87);
+            this.label1.Location = new System.Drawing.Point(26, 168);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(76, 17);
             this.label1.TabIndex = 8;
@@ -270,18 +276,93 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label2.Location = new System.Drawing.Point(110, 87);
+            this.label2.Location = new System.Drawing.Point(108, 168);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(15, 17);
             this.label2.TabIndex = 9;
             this.label2.Text = "0";
+            // 
+            // radioRed
+            // 
+            this.radioRed.AutoSize = true;
+            this.radioRed.CustomBackground = false;
+            this.radioRed.FontSize = MetroFramework.MetroLinkSize.Small;
+            this.radioRed.FontWeight = MetroFramework.MetroLinkWeight.Regular;
+            this.radioRed.Location = new System.Drawing.Point(337, 45);
+            this.radioRed.Name = "radioRed";
+            this.radioRed.Size = new System.Drawing.Size(43, 15);
+            this.radioRed.Style = MetroFramework.MetroColorStyle.Red;
+            this.radioRed.StyleManager = null;
+            this.radioRed.TabIndex = 10;
+            this.radioRed.Text = "Red";
+            this.radioRed.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.radioRed.UseStyleColors = true;
+            this.radioRed.UseVisualStyleBackColor = true;
+            // 
+            // radioGreen
+            // 
+            this.radioGreen.AutoSize = true;
+            this.radioGreen.CustomBackground = false;
+            this.radioGreen.FontSize = MetroFramework.MetroLinkSize.Small;
+            this.radioGreen.FontWeight = MetroFramework.MetroLinkWeight.Regular;
+            this.radioGreen.Location = new System.Drawing.Point(337, 67);
+            this.radioGreen.Name = "radioGreen";
+            this.radioGreen.Size = new System.Drawing.Size(54, 15);
+            this.radioGreen.Style = MetroFramework.MetroColorStyle.Green;
+            this.radioGreen.StyleManager = null;
+            this.radioGreen.TabIndex = 11;
+            this.radioGreen.Text = "Green";
+            this.radioGreen.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.radioGreen.UseStyleColors = true;
+            this.radioGreen.UseVisualStyleBackColor = true;
+            // 
+            // radioBlue
+            // 
+            this.radioBlue.AutoSize = true;
+            this.radioBlue.CustomBackground = false;
+            this.radioBlue.FontSize = MetroFramework.MetroLinkSize.Small;
+            this.radioBlue.FontWeight = MetroFramework.MetroLinkWeight.Regular;
+            this.radioBlue.Location = new System.Drawing.Point(337, 89);
+            this.radioBlue.Name = "radioBlue";
+            this.radioBlue.Size = new System.Drawing.Size(46, 15);
+            this.radioBlue.Style = MetroFramework.MetroColorStyle.Blue;
+            this.radioBlue.StyleManager = null;
+            this.radioBlue.TabIndex = 12;
+            this.radioBlue.Text = "Blue";
+            this.radioBlue.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.radioBlue.UseStyleColors = true;
+            this.radioBlue.UseVisualStyleBackColor = true;
+            // 
+            // radioGray
+            // 
+            this.radioGray.AutoSize = true;
+            this.radioGray.Checked = true;
+            this.radioGray.CustomBackground = false;
+            this.radioGray.FontSize = MetroFramework.MetroLinkSize.Small;
+            this.radioGray.FontWeight = MetroFramework.MetroLinkWeight.Regular;
+            this.radioGray.Location = new System.Drawing.Point(337, 111);
+            this.radioGray.Name = "radioGray";
+            this.radioGray.Size = new System.Drawing.Size(47, 15);
+            this.radioGray.Style = MetroFramework.MetroColorStyle.Black;
+            this.radioGray.StyleManager = null;
+            this.radioGray.TabIndex = 13;
+            this.radioGray.TabStop = true;
+            this.radioGray.Text = "Gray";
+            this.radioGray.Theme = MetroFramework.MetroThemeStyle.Light;
+            this.radioGray.UseStyleColors = true;
+            this.radioGray.UseVisualStyleBackColor = true;
+            this.radioGray.CheckedChanged += new System.EventHandler(this.radioGray_CheckedChanged);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(645, 497);
+            this.ClientSize = new System.Drawing.Size(643, 569);
+            this.Controls.Add(this.radioGray);
+            this.Controls.Add(this.radioBlue);
+            this.Controls.Add(this.radioGreen);
+            this.Controls.Add(this.radioRed);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.metroLabel4);
@@ -294,7 +375,7 @@
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "Form1";
-            this.Text = "Canny";
+            this.Text = "DetermineAstrocytes";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -325,6 +406,10 @@
         private System.Windows.Forms.ToolStripMenuItem findContoursToolStripMenuItem;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private MetroFramework.Controls.MetroRadioButton radioRed;
+        private MetroFramework.Controls.MetroRadioButton radioGreen;
+        private MetroFramework.Controls.MetroRadioButton radioBlue;
+        private MetroFramework.Controls.MetroRadioButton radioGray;
     }
 }
 

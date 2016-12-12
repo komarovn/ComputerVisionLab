@@ -80,7 +80,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Canny.cs" />
+    <Compile Include="DetermineAstrocytes.cs" />
+    <Compile Include="Channels.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

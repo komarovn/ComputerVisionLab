@@ -17,11 +17,14 @@ namespace ComputerVisionLab
 {
     public partial class Form1 : Form
     {
+        private readonly int PADDING_HEIGHT = 205;
+
         private Mat image;
         private Mat outputImage;
-        private Canny cannyMethod;
+        private DetermineAstrocytes determineAstrocytes;
         private int minThreshold = 22;
         private int maxThreshold = 46;
+        private Channels channel = Channels.GRAY;
 
         public Form1()
         {
@@ -45,6 +48,19 @@ namespace ComputerVisionLab
             metroTrackBar2.Value = maxThreshold;
             metroLabel3.Text = metroTrackBar1.Value.ToString();
             metroLabel4.Text = metroTrackBar2.Value.ToString();
+            setChannel();
+        }
+
+        private void setChannel()
+        {
+            if (radioGray.Checked)
+                channel = Channels.GRAY;
+            if (radioRed.Checked)
+                channel = Channels.RED;
+            if (radioGreen.Checked)
+                channel = Channels.GREEN;
+            if (radioBlue.Checked)
+                channel = Channels.BLUE;
         }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -70,15 +86,16 @@ namespace ComputerVisionLab
 
         private void RefreshCanny()
         {
+            setChannel();
             if (image != null)
             {
                 Mat destImage = new Mat();
                 image.CopyTo(destImage);
-                cannyMethod = new Canny(destImage, minThreshold, maxThreshold);
-                cannyMethod.getOutputImage().CopyTo(outputImage);
+                determineAstrocytes = new DetermineAstrocytes(destImage, minThreshold, maxThreshold, channel);
+                determineAstrocytes.getOutputImage().CopyTo(outputImage);
                 imageBox1.Image = outputImage;
-                //imageBox1.Image = cannyMethod.getOutputImage();
-                //imageBox1.Image = cannyMethod.getOutputImageOverSourceImage();
+                //imageBox1.Image = determineAstrocytes.getOutputImage();
+                //imageBox1.Image = determineAstrocytes.getOutputImageOverSourceImage();
                 imageBox1.Refresh();
             }
         }
@@ -101,15 +118,15 @@ namespace ComputerVisionLab
                 Width = maximumWindowSize.Width;
                 imageBox1.Width = Width - 42;
             }
-            if (image.Height <= maximumWindowSize.Height - 128)
+            if (image.Height <= maximumWindowSize.Height - PADDING_HEIGHT)
             {
-                Height = image.Height + 128;
+                Height = image.Height + PADDING_HEIGHT;
                 imageBox1.Height = image.Height;
             }
             else
             {
                 Height = maximumWindowSize.Height - 60;
-                imageBox1.Height = Height - 128;
+                imageBox1.Height = Height - PADDING_HEIGHT;
             }
         }
 
@@ -150,8 +167,6 @@ namespace ComputerVisionLab
             if (metroTrackBar1.Value <= maxThreshold - 1)
             {
                 metroLabel3.Text = metroTrackBar1.Value.ToString();
-                minThreshold = metroTrackBar1.Value;
-                RefreshCanny();
             }
         }
 
@@ -160,8 +175,6 @@ namespace ComputerVisionLab
             if (metroTrackBar2.Value >= minThreshold + 1)
             {
                 metroLabel4.Text = metroTrackBar2.Value.ToString();
-                maxThreshold = metroTrackBar2.Value;
-                RefreshCanny();
             }
         }
 
@@ -169,7 +182,7 @@ namespace ComputerVisionLab
         {
             if (image != null)
             {
-                Canny dest = new Canny(image);
+                DetermineAstrocytes dest = new DetermineAstrocytes(image);
                 dest.Dilation(outputImage).CopyTo(outputImage);
                 imageBox1.Image = outputImage;
                 imageBox1.Refresh();
@@ -180,7 +193,7 @@ namespace ComputerVisionLab
         {
             if (image != null)
             {
-                Canny dest = new Canny(image);
+                DetermineAstrocytes dest = new DetermineAstrocytes(image);
                 Mat destImage = new Mat();
                 destImage = dest.Grayscale(outputImage);
                 if (destImage != null)
@@ -196,7 +209,7 @@ namespace ComputerVisionLab
         {
             if (image != null)
             {
-                Canny dest = new Canny(image);
+                DetermineAstrocytes dest = new DetermineAstrocytes(image);
                 Mat destImage = new Mat();
                 destImage = dest.FindContours(outputImage);
                 if (destImage != null)
@@ -207,6 +220,31 @@ namespace ComputerVisionLab
                     imageBox1.Refresh();
                 }
             }
+        }
+
+        private void metroTrackBar1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (metroTrackBar1.Value <= maxThreshold - 1)
+            {
+                metroLabel3.Text = metroTrackBar1.Value.ToString();
+                minThreshold = metroTrackBar1.Value;
+                RefreshCanny();
+            }
+        }
+
+        private void metroTrackBar2_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (metroTrackBar2.Value >= minThreshold + 1)
+            {
+                metroLabel4.Text = metroTrackBar2.Value.ToString();
+                maxThreshold = metroTrackBar2.Value;
+                RefreshCanny();
+            }
+        }
+
+        private void radioGray_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
