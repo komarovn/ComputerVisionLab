@@ -24,7 +24,7 @@ namespace ComputerVisionLab
         private readonly int width;
         private readonly int minThreshold;
         private readonly int maxThreshold;
-        private int numberOfAstrocytes;
+        private int totalNumberOfAstrocytes;
         private int[] astrocytesCenters;
 
         private Image<Gray, byte> gradients;
@@ -261,7 +261,7 @@ namespace ComputerVisionLab
             sourceImage.CopyTo(dest);
 
             Image<Gray, byte> srcImageGray = sourceImage.ToImage<Gray, byte>();
-            numberOfAstrocytes = 0;
+            totalNumberOfAstrocytes = 0;
 
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contoursAfterCannyEdgeDetection = new VectorOfVectorOfPoint())
@@ -271,15 +271,14 @@ namespace ComputerVisionLab
                 for (int contourIndex = 0; contourIndex < contoursAfterCannyEdgeDetection.Size; contourIndex++)
                 {
                     Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[contourIndex]);
-                    MCvScalar color = new MCvScalar(0, 0, 255);
                     double contourArea = CvInvoke.ContourArea(contoursAfterCannyEdgeDetection[contourIndex], false);    // Finding the area of contour
                     double contourPerimeter = CvInvoke.ArcLength(contoursAfterCannyEdgeDetection[contourIndex], true);
                     
                     if (contourArea >= 7)
                     {
                         if (((boundingRectangle.Width < 25) || (boundingRectangle.Height < 25)) && 
-                            ((boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) && 
-                            (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f)))
+                            (boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) && 
+                            (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f))
                         {
                             if (contourArea/(contourPerimeter*contourPerimeter) > 0.05 && contourArea/(contourPerimeter*contourPerimeter) < 0.30)
                             {
@@ -299,9 +298,15 @@ namespace ComputerVisionLab
                                 averageIntensityInsideContour /= quantityOfPixelsInsideContour;
                                 if (averageIntensityInsideContour < 110)
                                 {
+                                    int xCoordOfAstrocyteCenter = boundingRectangle.Left + boundingRectangle.Width / 2;
+                                    int yCoordOfAstrocyteCenter = boundingRectangle.Top + boundingRectangle.Height / 2;
+                                    Point astrocyteCenter = new Point(xCoordOfAstrocyteCenter, yCoordOfAstrocyteCenter);
+
+                                    CvInvoke.Circle(dest, astrocyteCenter, 1, new MCvScalar(79, 123, 255), 2);
+
                                     CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex,
-                                        new MCvScalar(108, 240, 3), 2, LineType.EightConnected /*, hierachy*/);
-                                    numberOfAstrocytes++;
+                                        new MCvScalar(108, 240, 3)/*, 1, LineType.EightConnected , hierachy*/);
+                                    totalNumberOfAstrocytes++;
                                 }
                                 //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
                             }
@@ -315,7 +320,7 @@ namespace ComputerVisionLab
 
         public int getNumberOfAstrocytes()
         {
-            return numberOfAstrocytes;
+            return totalNumberOfAstrocytes;
         }
     }
 }
