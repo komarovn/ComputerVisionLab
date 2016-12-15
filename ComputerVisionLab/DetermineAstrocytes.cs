@@ -232,12 +232,12 @@ namespace ComputerVisionLab
 
         public Mat Dilation(Mat src)
         {
-            Mat dest = new Mat();
-            Mat dest2 = new Mat();
-            CvInvoke.Dilate(src, dest, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
-            CvInvoke.Erode(dest, dest2, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
+            Mat destDilate = new Mat();
+            Mat destErode = new Mat();
+            CvInvoke.Dilate(src, destDilate, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
+            CvInvoke.Erode(destDilate, destErode, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
             //CvInvoke.Dilate(dest2, dest, null, new Point(-1, -1), 1, BorderType.Reflect, new MCvScalar());
-            return dest2;
+            return destErode;
         }
 
         public Mat Grayscale(Mat src)
@@ -249,8 +249,13 @@ namespace ComputerVisionLab
             return dest;
         }
 
+        /** 
+         * @param src - source white-black image after Canny edge detection 
+         * @return dest - color image with contours
+         */
         public Mat FindContours(Mat src)
         {
+            Image<Gray, byte> srcImageGray = sourceImage.ToImage<Gray, byte>();
             numberOfAstrocytes = 0;
             //Mat dest = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
             Mat dest = new Mat();
@@ -260,7 +265,7 @@ namespace ComputerVisionLab
 
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contoursAfterCannyEdgeDetection = new VectorOfVectorOfPoint())
-            using (VectorOfVectorOfPoint contoursAfterCriteriaApplying = new VectorOfVectorOfPoint())
+            //using (VectorOfVectorOfPoint contoursAfterCriteriaApplying = new VectorOfVectorOfPoint())
             {
                 CvInvoke.FindContours(src, contoursAfterCannyEdgeDetection, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxNone);
 
@@ -279,23 +284,41 @@ namespace ComputerVisionLab
                         {
                             if (contourArea/(contourPerimeter*contourPerimeter) > 0.05 && contourArea/(contourPerimeter*contourPerimeter) < 0.30)
                             {
-                                contoursAfterCriteriaApplying.Push(contoursAfterCannyEdgeDetection[contourIndex]);
+                                //contoursAfterCriteriaApplying.Push(contoursAfterCannyEdgeDetection[contourIndex]);
+
+                                int averageIntensityInsideContour = 0;
+                                int quantityOfPixelsInsideContour = 0;
+                                for (int xCoord = boundingRectangle.Left; xCoord <= boundingRectangle.Right; xCoord++)
+                                {
+                                    for (int yCoord = boundingRectangle.Top; yCoord <= boundingRectangle.Bottom; yCoord++)
+                                    {
+                                        if (CvInvoke.PointPolygonTest(contoursAfterCannyEdgeDetection[contourIndex], new Point(xCoord, yCoord), false) >= 0)
+                                        {
+                                            averageIntensityInsideContour += (byte) srcImageGray[yCoord, xCoord].Intensity;
+                                            quantityOfPixelsInsideContour++;
+                                        }
+                                    }
+                                }
+                                averageIntensityInsideContour /= quantityOfPixelsInsideContour;
+                                if (averageIntensityInsideContour < 110)
+                                {
+                                    CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex,
+                                        new MCvScalar(108, 240, 3), 2, LineType.EightConnected /*, hierachy*/);
+                                    numberOfAstrocytes++;
+                                }
                                 //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
                             }
                         }
                     }
                 }
 
+                /*
                 int quantityOfLabels = (int)Math.Ceiling((double)contoursAfterCriteriaApplying.Size/254);
                 int sizeOfLastLabels = contoursAfterCriteriaApplying.Size%255;
-                Image<Gray, byte> srcImage = sourceImage.ToImage<Gray, byte>();
 
                 for (int labelIndex = 0; labelIndex < quantityOfLabels; labelIndex++)
                 {
                     Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
-                    /*for(int i = 0; i < src.Cols; i++)
-                        for(int j = 0; j < src.Rows; j++)
-                            labels.SetValue(j, i, (byte)255);*/
                     int indexOfLastElementInIteration = (labelIndex + 1) * 255;
                     int sizeOfElementsInIteration = 255;
                     if (labelIndex == quantityOfLabels - 1)
@@ -318,11 +341,11 @@ namespace ComputerVisionLab
                     {
                         for (int j = 0; j < src.Rows; j++)
                         {
-                            byte label = /* (byte) labels.GetValue(j, i);*/ im.Data[j, i, 0];
+                            byte label = im.Data[j, i, 0];
                             if (label == 0)
                                 continue;
                             label -= 1;
-                            byte value = (byte) srcImage[j, i].Intensity;
+                            byte value = (byte) srcImageGray[j, i].Intensity;
                             averageContourIntensity[label] += value;
                             ++counts[label];
                         }
@@ -335,16 +358,16 @@ namespace ComputerVisionLab
                             Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[i]);
                             CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + labelIndex*255,
                                 new MCvScalar(108, 240, 3), 2,
-                                LineType.EightConnected /*, hierachy*/);
+                                LineType.EightConnected);
                             numberOfAstrocytes++;
                         }
                         else
                         {
                             ;
-                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(0, 100, 230), 1, LineType.EightConnected/*, hierachy*/);
+                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(0, 100, 230), 1, LineType.EightConnected);
                         }
                     }
-                }
+                } */
             }
 
             return dest;
