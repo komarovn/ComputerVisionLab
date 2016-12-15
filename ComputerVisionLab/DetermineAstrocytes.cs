@@ -236,7 +236,6 @@ namespace ComputerVisionLab
             Mat destErode = new Mat();
             CvInvoke.Dilate(src, destDilate, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
             CvInvoke.Erode(destDilate, destErode, null, new Point(-1, -1), 2, BorderType.Reflect, new MCvScalar());
-            //CvInvoke.Dilate(dest2, dest, null, new Point(-1, -1), 1, BorderType.Reflect, new MCvScalar());
             return destErode;
         }
 
@@ -255,17 +254,17 @@ namespace ComputerVisionLab
          */
         public Mat FindContours(Mat src)
         {
-            Image<Gray, byte> srcImageGray = sourceImage.ToImage<Gray, byte>();
-            numberOfAstrocytes = 0;
-            //Mat dest = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
-            Mat dest = new Mat();
-            sourceImage.CopyTo(dest);
             if (src.NumberOfChannels == 3)
                 return null;
 
+            Mat dest = new Mat();
+            sourceImage.CopyTo(dest);
+
+            Image<Gray, byte> srcImageGray = sourceImage.ToImage<Gray, byte>();
+            numberOfAstrocytes = 0;
+
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contoursAfterCannyEdgeDetection = new VectorOfVectorOfPoint())
-            //using (VectorOfVectorOfPoint contoursAfterCriteriaApplying = new VectorOfVectorOfPoint())
             {
                 CvInvoke.FindContours(src, contoursAfterCannyEdgeDetection, hierachy, RetrType.Tree, ChainApproxMethod.ChainApproxNone);
 
@@ -273,7 +272,7 @@ namespace ComputerVisionLab
                 {
                     Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[contourIndex]);
                     MCvScalar color = new MCvScalar(0, 0, 255);
-                    double contourArea = CvInvoke.ContourArea(contoursAfterCannyEdgeDetection[contourIndex], false); //  Find the area of contour
+                    double contourArea = CvInvoke.ContourArea(contoursAfterCannyEdgeDetection[contourIndex], false);    // Finding the area of contour
                     double contourPerimeter = CvInvoke.ArcLength(contoursAfterCannyEdgeDetection[contourIndex], true);
                     
                     if (contourArea >= 7)
@@ -284,8 +283,6 @@ namespace ComputerVisionLab
                         {
                             if (contourArea/(contourPerimeter*contourPerimeter) > 0.05 && contourArea/(contourPerimeter*contourPerimeter) < 0.30)
                             {
-                                //contoursAfterCriteriaApplying.Push(contoursAfterCannyEdgeDetection[contourIndex]);
-
                                 int averageIntensityInsideContour = 0;
                                 int quantityOfPixelsInsideContour = 0;
                                 for (int xCoord = boundingRectangle.Left; xCoord <= boundingRectangle.Right; xCoord++)
@@ -311,63 +308,6 @@ namespace ComputerVisionLab
                         }
                     }
                 }
-
-                /*
-                int quantityOfLabels = (int)Math.Ceiling((double)contoursAfterCriteriaApplying.Size/254);
-                int sizeOfLastLabels = contoursAfterCriteriaApplying.Size%255;
-
-                for (int labelIndex = 0; labelIndex < quantityOfLabels; labelIndex++)
-                {
-                    Mat labels = new Mat(src.Rows, src.Cols, DepthType.Cv8U, 3);
-                    int indexOfLastElementInIteration = (labelIndex + 1) * 255;
-                    int sizeOfElementsInIteration = 255;
-                    if (labelIndex == quantityOfLabels - 1)
-                    {
-                        indexOfLastElementInIteration = labelIndex * 255 + sizeOfLastLabels;
-                        sizeOfElementsInIteration = sizeOfLastLabels%255;
-                    }
-                    for (int contourIndex = labelIndex * 255; contourIndex < indexOfLastElementInIteration; contourIndex++)
-                    {
-                        CvInvoke.DrawContours(labels, contoursAfterCriteriaApplying, contourIndex,
-                                new MCvScalar(contourIndex % 255 + 1), -1);
-                            // draw contour[contourIndex] with (contourIndex + 1) gray color 
-                    }
-                    int[] averageContourIntensity = new int[255];
-                    int[] counts = new int[255];
-
-                    var im = labels.ToImage<Bgra, Byte>();
-
-                    for (int i = 0; i < src.Cols; i++)
-                    {
-                        for (int j = 0; j < src.Rows; j++)
-                        {
-                            byte label = im.Data[j, i, 0];
-                            if (label == 0)
-                                continue;
-                            label -= 1;
-                            byte value = (byte) srcImageGray[j, i].Intensity;
-                            averageContourIntensity[label] += value;
-                            ++counts[label];
-                        }
-                    }
-                    for (int i = 0; i < sizeOfElementsInIteration; i++)
-                    {
-                        averageContourIntensity[i] /= counts[i];
-                        if ((averageContourIntensity[i] < 110 && counts[i] > 100))
-                        {
-                            Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[i]);
-                            CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + labelIndex*255,
-                                new MCvScalar(108, 240, 3), 2,
-                                LineType.EightConnected);
-                            numberOfAstrocytes++;
-                        }
-                        else
-                        {
-                            ;
-                            //CvInvoke.DrawContours(dest, contoursAfterCriteriaApplying, i + k * 255, new MCvScalar(0, 100, 230), 1, LineType.EightConnected);
-                        }
-                    }
-                } */
             }
 
             return dest;
