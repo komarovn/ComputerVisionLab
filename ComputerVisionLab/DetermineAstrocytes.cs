@@ -282,22 +282,62 @@ namespace ComputerVisionLab
                     int xCoordOfAstrocyteCenter = boundingRectangle.Left + boundingRectangle.Width / 2;
                     int yCoordOfAstrocyteCenter = boundingRectangle.Top + boundingRectangle.Height / 2;
                     Point astrocyteCenter = new Point(xCoordOfAstrocyteCenter, yCoordOfAstrocyteCenter);
+                    int boundRectSize = 0;
+                    int intensityValue = 0;
+                    int contourAreaValue = 0;
 
-                    analizeContours(contoursAfterCannyEdgeDetection, contourIndex, boundingRectangle, srcImageGray, astrocyteCenter, ref dest);
+                    if (astrocyteCenter.Y <= 484)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    else if (astrocyteCenter.Y > 484 && astrocyteCenter.Y <= 1265)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    else if (astrocyteCenter.Y > 1265 && astrocyteCenter.Y <= 1561)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    else if (astrocyteCenter.Y > 1561 && astrocyteCenter.Y <= 2276)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    else if (astrocyteCenter.Y > 2276 && astrocyteCenter.Y <= 3203)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    else if (astrocyteCenter.Y > 3203)
+                    {
+                        contourAreaValue = 7;
+                        boundRectSize = 25;
+                        intensityValue = 110;
+                    }
+                    analizeContours(contoursAfterCannyEdgeDetection, contourIndex, boundingRectangle, srcImageGray, astrocyteCenter, contourAreaValue, boundRectSize, intensityValue, ref dest);
                 }
             }
 
+            drawLayerDelimiters(ref dest);
             return dest;
         }
 
-        private void analizeContours(VectorOfVectorOfPoint contours, int contourIndex, Rectangle boundingRectangle, Image<Gray, Byte> srcImageGray, Point astrocyteCenter, ref Mat dest)
+        private void analizeContours(VectorOfVectorOfPoint contours, int contourIndex, Rectangle boundingRectangle, Image<Gray, Byte> srcImageGray, Point astrocyteCenter, int contourAreaValue, int boundRectSize, int intensityValue, ref Mat dest)
         {
-            double contourArea = CvInvoke.ContourArea(contours[contourIndex], false);    // Finding the area of contour
+            double contourArea = CvInvoke.ContourArea(contours[contourIndex]);
             double contourPerimeter = CvInvoke.ArcLength(contours[contourIndex], true);
 
-            if (contourArea >= 7)
+            if (contourArea >= contourAreaValue)
             {
-                if (((boundingRectangle.Width < 25) || (boundingRectangle.Height < 25)) &&
+                if (((boundingRectangle.Width < boundRectSize) || (boundingRectangle.Height < boundRectSize)) &&
                     (boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) &&
                     (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f))
                 {
@@ -317,17 +357,12 @@ namespace ComputerVisionLab
                             }
                         }
                         averageIntensityInsideContour /= quantityOfPixelsInsideContour;
-                        if (averageIntensityInsideContour < 110)
+                        if (averageIntensityInsideContour < intensityValue)
                         {
-                            
-
                             CvInvoke.Circle(dest, astrocyteCenter, 1, new MCvScalar(79, 123, 255), 2);
-
-                            CvInvoke.DrawContours(dest, contours, contourIndex,
-                                new MCvScalar(108, 240, 3)/*, 1, LineType.EightConnected , hierachy*/);
+                            CvInvoke.DrawContours(dest, contours, contourIndex, new MCvScalar(108, 240, 3));
                             totalNumberOfAstrocytes++;
                         }
-                        //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
                     }
                 }
             }
@@ -336,6 +371,36 @@ namespace ComputerVisionLab
         public int getNumberOfAstrocytes()
         {
             return totalNumberOfAstrocytes;
+        }
+
+        private void drawLayerDelimiters(ref Mat src)
+        {
+            var dest = src.ToImage<Bgr, Byte>();
+            Point leftPoint = new Point(0, 484);
+            Point rightPoint = new Point(src.Width - 1, 484);
+            LineSegment2D line = new LineSegment2D(leftPoint, rightPoint);
+            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+
+            leftPoint = new Point(0, 1265);
+            rightPoint = new Point(src.Width - 1, 1265);
+            line = new LineSegment2D(leftPoint, rightPoint);
+            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+
+            leftPoint = new Point(0, 1561);
+            rightPoint = new Point(src.Width - 1, 1561);
+            line = new LineSegment2D(leftPoint, rightPoint);
+            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+
+            leftPoint = new Point(0, 2276);
+            rightPoint = new Point(src.Width - 1, 2276);
+            line = new LineSegment2D(leftPoint, rightPoint);
+            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+
+            leftPoint = new Point(0, 3203);
+            rightPoint = new Point(src.Width - 1, 3203);
+            line = new LineSegment2D(leftPoint, rightPoint);
+            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+            src = dest.Mat;
         }
     }
 }
