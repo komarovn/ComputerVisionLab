@@ -183,7 +183,7 @@ namespace ComputerVisionLab
             if (image != null)
             {
                 DetermineAstrocytes dest = new DetermineAstrocytes(image);
-                dest.Dilation(outputImage).CopyTo(outputImage);
+                dest.MathMorphology(outputImage).CopyTo(outputImage);
                 imageBox1.Image = outputImage;
                 imageBox1.Refresh();
             }

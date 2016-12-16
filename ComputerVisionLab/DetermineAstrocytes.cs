@@ -230,7 +230,10 @@ namespace ComputerVisionLab
             return dest.Mat;
         }
 
-        public Mat Dilation(Mat src)
+        /**
+         * Making dilation and erosion with contours after Canny method applying.
+         */
+        public Mat MathMorphology(Mat src)
         {
             Mat destDilate = new Mat();
             Mat destErode = new Mat();
@@ -239,6 +242,11 @@ namespace ComputerVisionLab
             return destErode;
         }
 
+        /**
+         * Converting color image into gray image.
+         * @param src - source color image
+         * @return dest - grayscale image
+         */
         public Mat Grayscale(Mat src)
         {
             if (src.NumberOfChannels < 3)
@@ -271,51 +279,58 @@ namespace ComputerVisionLab
                 for (int contourIndex = 0; contourIndex < contoursAfterCannyEdgeDetection.Size; contourIndex++)
                 {
                     Rectangle boundingRectangle = CvInvoke.BoundingRectangle(contoursAfterCannyEdgeDetection[contourIndex]);
-                    double contourArea = CvInvoke.ContourArea(contoursAfterCannyEdgeDetection[contourIndex], false);    // Finding the area of contour
-                    double contourPerimeter = CvInvoke.ArcLength(contoursAfterCannyEdgeDetection[contourIndex], true);
-                    
-                    if (contourArea >= 7)
-                    {
-                        if (((boundingRectangle.Width < 25) || (boundingRectangle.Height < 25)) && 
-                            (boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) && 
-                            (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f))
-                        {
-                            if (contourArea/(contourPerimeter*contourPerimeter) > 0.05 && contourArea/(contourPerimeter*contourPerimeter) < 0.30)
-                            {
-                                int averageIntensityInsideContour = 0;
-                                int quantityOfPixelsInsideContour = 0;
-                                for (int xCoord = boundingRectangle.Left; xCoord <= boundingRectangle.Right; xCoord++)
-                                {
-                                    for (int yCoord = boundingRectangle.Top; yCoord <= boundingRectangle.Bottom; yCoord++)
-                                    {
-                                        if (CvInvoke.PointPolygonTest(contoursAfterCannyEdgeDetection[contourIndex], new Point(xCoord, yCoord), false) >= 0)
-                                        {
-                                            averageIntensityInsideContour += (byte) srcImageGray[yCoord, xCoord].Intensity;
-                                            quantityOfPixelsInsideContour++;
-                                        }
-                                    }
-                                }
-                                averageIntensityInsideContour /= quantityOfPixelsInsideContour;
-                                if (averageIntensityInsideContour < 110)
-                                {
-                                    int xCoordOfAstrocyteCenter = boundingRectangle.Left + boundingRectangle.Width / 2;
-                                    int yCoordOfAstrocyteCenter = boundingRectangle.Top + boundingRectangle.Height / 2;
-                                    Point astrocyteCenter = new Point(xCoordOfAstrocyteCenter, yCoordOfAstrocyteCenter);
+                    int xCoordOfAstrocyteCenter = boundingRectangle.Left + boundingRectangle.Width / 2;
+                    int yCoordOfAstrocyteCenter = boundingRectangle.Top + boundingRectangle.Height / 2;
+                    Point astrocyteCenter = new Point(xCoordOfAstrocyteCenter, yCoordOfAstrocyteCenter);
 
-                                    CvInvoke.Circle(dest, astrocyteCenter, 1, new MCvScalar(79, 123, 255), 2);
-
-                                    CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex,
-                                        new MCvScalar(108, 240, 3)/*, 1, LineType.EightConnected , hierachy*/);
-                                    totalNumberOfAstrocytes++;
-                                }
-                                //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
-                            }
-                        }
-                    }
+                    analizeContours(contoursAfterCannyEdgeDetection, contourIndex, boundingRectangle, srcImageGray, astrocyteCenter, ref dest);
                 }
             }
 
             return dest;
+        }
+
+        private void analizeContours(VectorOfVectorOfPoint contours, int contourIndex, Rectangle boundingRectangle, Image<Gray, Byte> srcImageGray, Point astrocyteCenter, ref Mat dest)
+        {
+            double contourArea = CvInvoke.ContourArea(contours[contourIndex], false);    // Finding the area of contour
+            double contourPerimeter = CvInvoke.ArcLength(contours[contourIndex], true);
+
+            if (contourArea >= 7)
+            {
+                if (((boundingRectangle.Width < 25) || (boundingRectangle.Height < 25)) &&
+                    (boundingRectangle.Width / (float)boundingRectangle.Height < 1.8f) &&
+                    (boundingRectangle.Height / (float)boundingRectangle.Width < 1.8f))
+                {
+                    if (contourArea / (contourPerimeter * contourPerimeter) > 0.05 && contourArea / (contourPerimeter * contourPerimeter) < 0.30)
+                    {
+                        int averageIntensityInsideContour = 0;
+                        int quantityOfPixelsInsideContour = 0;
+                        for (int xCoord = boundingRectangle.Left; xCoord <= boundingRectangle.Right; xCoord++)
+                        {
+                            for (int yCoord = boundingRectangle.Top; yCoord <= boundingRectangle.Bottom; yCoord++)
+                            {
+                                if (CvInvoke.PointPolygonTest(contours[contourIndex], new Point(xCoord, yCoord), false) >= 0)
+                                {
+                                    averageIntensityInsideContour += (byte)srcImageGray[yCoord, xCoord].Intensity;
+                                    quantityOfPixelsInsideContour++;
+                                }
+                            }
+                        }
+                        averageIntensityInsideContour /= quantityOfPixelsInsideContour;
+                        if (averageIntensityInsideContour < 110)
+                        {
+                            
+
+                            CvInvoke.Circle(dest, astrocyteCenter, 1, new MCvScalar(79, 123, 255), 2);
+
+                            CvInvoke.DrawContours(dest, contours, contourIndex,
+                                new MCvScalar(108, 240, 3)/*, 1, LineType.EightConnected , hierachy*/);
+                            totalNumberOfAstrocytes++;
+                        }
+                        //CvInvoke.DrawContours(dest, contoursAfterCannyEdgeDetection, contourIndex, new MCvScalar(100, 40, 200), 1, LineType.EightConnected/*, hierachy*/);
+                    }
+                }
+            }
         }
 
         public int getNumberOfAstrocytes()
