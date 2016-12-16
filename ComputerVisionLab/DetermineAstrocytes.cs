@@ -312,14 +312,14 @@ namespace ComputerVisionLab
                     }
                     else if (astrocyteCenter.Y > 2276 && astrocyteCenter.Y <= 3203)
                     {
-                        contourAreaValue = 7;
-                        boundRectSize = 25;
-                        intensityValue = 110;
+                        contourAreaValue = 100;
+                        boundRectSize = 200;
+                        intensityValue = 190;
                     }
                     else if (astrocyteCenter.Y > 3203)
                     {
                         contourAreaValue = 7;
-                        boundRectSize = 25;
+                        boundRectSize = 100;
                         intensityValue = 110;
                     }
                     analizeContours(contoursAfterCannyEdgeDetection, contourIndex, boundingRectangle, srcImageGray, astrocyteCenter, contourAreaValue, boundRectSize, intensityValue, ref dest);
