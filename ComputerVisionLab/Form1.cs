@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -140,11 +141,16 @@ namespace ComputerVisionLab
             saveFileDialog1.ShowDialog();
             if (saveFileDialog1.FileName != "")
             {
+                ImageCodecInfo jgpEncoder = GetEncoder(ImageFormat.Jpeg);
                 System.IO.FileStream fs = (System.IO.FileStream)saveFileDialog1.OpenFile();
+                System.Drawing.Imaging.Encoder myEncoder = System.Drawing.Imaging.Encoder.Quality;
+                EncoderParameters myEncoderParameters = new EncoderParameters(1);
+                EncoderParameter myEncoderParameter = new EncoderParameter(myEncoder, 400L);
+                myEncoderParameters.Param[0] = myEncoderParameter;
                 switch (saveFileDialog1.FilterIndex)
                 {
                     case 1:
-                        imageBox1.Image.Bitmap.Save(fs, System.Drawing.Imaging.ImageFormat.Jpeg);
+                        imageBox1.Image.Bitmap.Save(fs, jgpEncoder, myEncoderParameters);
                         break;
                     case 2:
                         imageBox1.Image.Bitmap.Save(fs, System.Drawing.Imaging.ImageFormat.Png);
@@ -155,6 +161,19 @@ namespace ComputerVisionLab
                 }
                 fs.Close();
             };
+        }
+
+        private ImageCodecInfo GetEncoder(ImageFormat format)
+        {
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            foreach (ImageCodecInfo codec in codecs)
+            {
+                if (codec.FormatID == format.Guid)
+                {
+                    return codec;
+                }
+            }
+            return null;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
