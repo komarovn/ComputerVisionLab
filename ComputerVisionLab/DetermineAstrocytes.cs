@@ -26,6 +26,7 @@ namespace ComputerVisionLab
         private readonly int maxThreshold;
         private int totalNumberOfAstrocytes;
         private int[] astrocytesCenters;
+        private int[] numberOfAstrocytes;
 
         private Image<Gray, byte> gradients;
         private Image<Gray, byte> angles;
@@ -273,6 +274,11 @@ namespace ComputerVisionLab
 
             Image<Gray, byte> srcImageGray = sourceImage.ToImage<Gray, byte>();
             totalNumberOfAstrocytes = 0;
+            numberOfAstrocytes = new int[6];
+            for (int i = 0; i < numberOfAstrocytes.Length; i++)
+            {
+                numberOfAstrocytes[i] = 0;
+            }
 
             using (Mat hierachy = new Mat())
             using (VectorOfVectorOfPoint contoursAfterCannyEdgeDetection = new VectorOfVectorOfPoint())
@@ -379,6 +385,30 @@ namespace ComputerVisionLab
                             CvInvoke.Circle(dest, astrocyteCenter, 3, new MCvScalar(108, 240, 3), 1);
                             //CvInvoke.DrawContours(dest, contours, contourIndex, new MCvScalar(79, 123, 255));
                             totalNumberOfAstrocytes++;
+                            if (astrocyteCenter.Y <= 484)
+                            {
+                                numberOfAstrocytes[0]++;
+                            }
+                            else if (astrocyteCenter.Y > 484 && astrocyteCenter.Y <= 1265)
+                            {
+                                numberOfAstrocytes[1]++;
+                            }
+                            else if (astrocyteCenter.Y > 1265 && astrocyteCenter.Y <= 1561)
+                            {
+                                numberOfAstrocytes[2]++;
+                            }
+                            else if (astrocyteCenter.Y > 1561 && astrocyteCenter.Y <= 2276)
+                            {
+                                numberOfAstrocytes[3]++;
+                            }
+                            else if (astrocyteCenter.Y > 2276 && astrocyteCenter.Y <= 3203)
+                            {
+                                numberOfAstrocytes[4]++;
+                            }
+                            else if (astrocyteCenter.Y > 3203)
+                            {
+                                numberOfAstrocytes[5]++;
+                            }
                         }
                         else
                         {
@@ -389,9 +419,14 @@ namespace ComputerVisionLab
             }
         }
 
-        public int getNumberOfAstrocytes()
+        public int getTotalNumberOfAstrocytes()
         {
             return totalNumberOfAstrocytes;
+        }
+
+        public int[] getNumberOfAstrocytes()
+        {
+            return numberOfAstrocytes;
         }
 
         private void drawLayerDelimiters(ref Mat src)

@@ -233,7 +233,14 @@ namespace ComputerVisionLab
                 destImage = dest.FindContours(outputImage);
                 if (destImage != null)
                 {
-                    label2.Text = dest.getNumberOfAstrocytes().ToString();
+                    label2.Text = dest.getTotalNumberOfAstrocytes().ToString();
+                    int[] numberOfAstrocytes = dest.getNumberOfAstrocytes();
+                    label4.Text = numberOfAstrocytes[0].ToString();
+                    label6.Text = numberOfAstrocytes[1].ToString();
+                    label8.Text = numberOfAstrocytes[2].ToString();
+                    label10.Text = numberOfAstrocytes[3].ToString();
+                    label12.Text = numberOfAstrocytes[4].ToString();
+                    label14.Text = numberOfAstrocytes[5].ToString();
                     destImage.CopyTo(outputImage);
                     imageBox1.Image = outputImage;
                     imageBox1.Refresh();
