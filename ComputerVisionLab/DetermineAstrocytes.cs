@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -31,9 +32,16 @@ namespace ComputerVisionLab
         private Image<Gray, byte> gradients;
         private Image<Gray, byte> angles;
 
+        /**
+         * Coordinates of horizontal lines which represents delimters of layers
+         */
+        private ArrayList layersY;
+
         public DetermineAstrocytes(Mat image)
         {
             sourceImage = image;
+            layersY = new ArrayList();
+            layersY.Add(484); layersY.Add(1265); layersY.Add(1561); layersY.Add(2276); layersY.Add(3203);
         }
 
         public DetermineAstrocytes(Mat image, int minThresh, int maxThresh, Channels channel)
@@ -45,6 +53,7 @@ namespace ComputerVisionLab
             sourceImage.CopyTo(outputImage);
             height = sourceImage.Rows;
             width = sourceImage.Cols;
+
             if (sourceImage.NumberOfChannels == 3)
             {
                 if (channel == Channels.GRAY)
@@ -248,7 +257,7 @@ namespace ComputerVisionLab
 
         /**
          * Converting color image into gray image.
-         * @param src - source color image
+         * @param src   - source color image
          * @return dest - grayscale image
          */
         public Mat Grayscale(Mat src)
@@ -261,7 +270,7 @@ namespace ComputerVisionLab
         }
 
         /** 
-         * @param src - source white-black image after Canny edge detection 
+         * @param src   - source white-black image after Canny edge detection 
          * @return dest - color image with contours
          */
         public Mat FindContours(Mat src)
@@ -432,30 +441,13 @@ namespace ComputerVisionLab
         private void drawLayerDelimiters(ref Mat src)
         {
             var dest = src.ToImage<Bgr, Byte>();
-            Point leftPoint = new Point(0, 484);
-            Point rightPoint = new Point(src.Width - 1, 484);
-            LineSegment2D line = new LineSegment2D(leftPoint, rightPoint);
-            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
-
-            leftPoint = new Point(0, 1265);
-            rightPoint = new Point(src.Width - 1, 1265);
-            line = new LineSegment2D(leftPoint, rightPoint);
-            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
-
-            leftPoint = new Point(0, 1561);
-            rightPoint = new Point(src.Width - 1, 1561);
-            line = new LineSegment2D(leftPoint, rightPoint);
-            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
-
-            leftPoint = new Point(0, 2276);
-            rightPoint = new Point(src.Width - 1, 2276);
-            line = new LineSegment2D(leftPoint, rightPoint);
-            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
-
-            leftPoint = new Point(0, 3203);
-            rightPoint = new Point(src.Width - 1, 3203);
-            line = new LineSegment2D(leftPoint, rightPoint);
-            dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+            foreach (int y in layersY)
+            {
+                Point leftPoint = new Point(0, y);
+                Point rightPoint = new Point(src.Width - 1, y);
+                LineSegment2D line = new LineSegment2D(leftPoint, rightPoint);
+                dest.Draw(line, new Bgr(Color.BlueViolet), 2);
+            }
             src = dest.Mat;
         }
     }
